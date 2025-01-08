@@ -31,10 +31,12 @@ static inline void StartBit(void)		//CSをHiにした後、DIをHiにするこ�
 static inline void EnableChip(void)
 {
 	WRITE_REG(GPIOA->BSRR,CS);
+	Delay(1);										//wait tCSS
 }
 static inline void DisableChip(void)
 {
 	WRITE_REG(GPIOA->BRR,CS);
+	Delay(1);										//wait tCDS
 }
 static void SendBit(uint8_t bit)
 {
@@ -95,15 +97,14 @@ static void WriteData(uint16_t data)
 		SendBit((data >> i) & 0x0001);
 	}
 }
-void WriteRom(uint8_t address,uint16_t data)
+void WriteRom(uint8_t address,uint8_t code,uint16_t data)
 {
 	EnableChip();
 	StartBit();
-	WriteAddress(address | WRITE_CODE);			//オペコード2ビット+アドレス
+	WriteAddress(address | code);			//オペコード2ビット+アドレス
 	WriteData(data);
 	DisableChip();
 }
-
 void ReadRom(uint8_t address,uint16_t *val)
 {
 	EnableChip();
@@ -116,7 +117,7 @@ void ReadRom(uint8_t address,uint16_t *val)
 }
 void EnableWrite(void)
 {
-	Init1usTick();			//SysTickを1usカウントに切り替える
+	Init1usTick();							//SysTickを1usカウントに切り替える
 	EnableChip();
 	//DummyClock();
 	StartBit();
@@ -129,11 +130,10 @@ void DisableWrite(void)
 	StartBit();
 	SendOpCode(DISABLE_CODE);
 	DisableChip();
-	DeInit1usTick();		//SysTickを1msカウントに戻す
+	DeInit1usTick();				//SysTickを1msカウントに戻す
 }
 void Verify(void)
 {
-	Delay(1);			//tCDS wait
 #ifdef ThreeWire
 	Delay(5000);
 #else
