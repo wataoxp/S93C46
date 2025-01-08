@@ -95,7 +95,7 @@ int main(void)
   EnableWrite();
   for(uint8_t i = 0; i < 8; i++)
   {
-	  WriteRom(i, i+120);
+	  WriteRom(i,WRITE_CODE,i+120);
 	  Verify();
   }
   uint16_t dat[8] = {0};
