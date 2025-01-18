@@ -8,20 +8,28 @@
 #ifndef INC_S93C46_H_
 #define INC_S93C46_H_
 
-#include <stdint.h>
-#include "stm32g031xx.h"
-#include "stm32g0xx.h"
+#include "main.h"
+#include "delay.h"
 
 typedef enum{
 	false,
 	true,
 }MicroWire_bool;
 
+typedef struct{
+	GPIO_TypeDef *PortCS;
+	GPIO_TypeDef *PortSK;
+	GPIO_TypeDef *PortDI;
+	GPIO_TypeDef *PortDO;
+	uint16_t CS;
+	uint16_t SK;
+	uint16_t DI;
+	uint16_t DO;
+}S93C46_Typedef;
+
 #define ADDR_MASK 0x3F
 #define SK_TIME 1
 #define SK_READ_TIME 2
-#define DI_SHIFT 6
-#define DO_SHIFT 7
 
 #define READ_CODE 0x80
 #define WRITE_CODE 0x40
@@ -31,19 +39,18 @@ typedef enum{
 #define ENABLE_CODE 0x30
 #define DISABLE_CODE 0x00
 
-typedef enum{
-	CS = 1 << 4,
-	SK = 1 << 5,
-	DI = 1 << 6,
-	DO = 1 << 7,
-}GPIO_Pin;
+//typedef enum{
+//	CS = 1 << 4,
+//	SK = 1 << 5,
+//	DI = 1 << 6,
+//	DO = 1 << 7,
+//}GPIO_Pin;
 
-void WriteRom(uint8_t address,uint16_t data);
+void SetHandle(S93C46_Typedef* init);
+void WriteRom(uint8_t address,uint8_t code,uint16_t data);
 void ReadRom(uint8_t address,uint16_t *val);
 void EnableWrite(void);
 void DisableWrite(void);
-
-void Verify(void);
 
 #endif /* INC_S93C46_H_ */
 
