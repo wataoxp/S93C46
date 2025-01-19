@@ -7,16 +7,14 @@
 
 (ROMから見て)データ入力(DI)と出力(DO)を1本にすることもできます。s93c46.cの"ThreeWire"の宣言で切り替えます。
 
+## 説明
+GPIOの設定はgpio.cのGPIO_Initで行っています。
 
-他のMCUで使う場合はs93c46.h内にあるenum GPIO_Pinの数値を使うGPIOのピン番号に合わせてください。
-
-またポートA以外を使う際にはs93c46.c内の編集も必要になります。
-
-例:PA7→ポートAの7番ピン
+GPIOの設定を行った後、8ページ分データを書き込み、書き込んだデータを読み取るだけのプログラムです。
 
 ## Requirement
 * STM32CubeIDE
-* STM32G031F6P6(Cortex-M0+)
+* STM32C011F4P6(Cortex-M0+)
 * Clang
 
 ## Description
