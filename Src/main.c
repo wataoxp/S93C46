@@ -71,7 +71,7 @@ int main(void)
 
 	GPIO_InitTypedef InitObj;
 	InitObj.PinPos = Pin0;
-	InitObj.Speed = LL_GPIO_SPEED_FREQ_LOW;
+	InitObj.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
 	InitObj.Pull = LL_GPIO_PULL_NO;
 	InitObj.Mode = LL_GPIO_MODE_OUTPUT;
 	InitObj.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
