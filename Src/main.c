@@ -21,8 +21,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "s93c46.h"
 #include "gpio.h"
+#include "s93c46.h"
+#include "delay.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,6 +67,22 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	uint16_t buf[8];
+
+	GPIO_InitTypedef InitObj;
+	InitObj.PinPos = Pin0;
+	InitObj.Speed = LL_GPIO_SPEED_FREQ_LOW;
+	InitObj.Pull = LL_GPIO_PULL_NO;
+	InitObj.Mode = LL_GPIO_MODE_OUTPUT;
+	InitObj.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+
+	S93C46_Typedef init;
+	init.PortCS = init.PortSK = init.PortDI = init.PortDO = GPIOA;
+	init.CS = 1 << Pin0;
+	init.SK = 1 << Pin1;
+	init.DI = 1 << Pin2;
+	init.DO = 1 << Pin3;
+
 
   /* USER CODE END 1 */
 
@@ -92,18 +109,40 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-  EnableWrite();
-  for(uint8_t i = 0; i < 8; i++)
-  {
-	  WriteRom(i,WRITE_CODE,i+120);
-	  Verify();
-  }
-  uint16_t dat[8] = {0};
-  for(uint8_t i = 0; i < 8;i++)
-  {
-	  ReadRom(i, &dat[i]);
-  }
-  DisableWrite();
+	LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+	if(GPIO_Init(GPIOA, &InitObj))
+	{
+		Error_Handler();
+	}
+	InitObj.PinPos = Pin1;
+	if(GPIO_Init(GPIOA, &InitObj))
+	{
+		Error_Handler();
+	}
+	InitObj.PinPos = Pin2;
+	if(GPIO_Init(GPIOA, &InitObj))
+	{
+		Error_Handler();
+	}
+	InitObj.PinPos = Pin3;
+	InitObj.Pull = LL_GPIO_PULL_DOWN;
+	InitObj.Mode = LL_GPIO_MODE_INPUT;
+	if(GPIO_Init(GPIOA, &InitObj))
+	{
+		Error_Handler();
+	}
+	SetHandle(&init);
+	EnableWrite();
+	for(uint8_t i = 0;i < 8;i++)
+	{
+		WriteRom(i, WRITE_CODE, i+20);
+	}
+	DisableWrite();
+	for(uint8_t i = 0;i < 8;i++)
+	{
+		ReadRom(i, &buf[i]);
+	}
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -123,10 +162,8 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
-  while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_2)
-  {
-  }
+
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
 
   /* HSI configuration and activation */
   LL_RCC_HSI_Enable();
@@ -134,30 +171,22 @@ void SystemClock_Config(void)
   {
   }
 
-  /* Main PLL configuration and activation */
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLR_DIV_2);
-  LL_RCC_PLL_Enable();
-  LL_RCC_PLL_EnableDomain_SYS();
-  while(LL_RCC_PLL_IsReady() != 1)
-  {
-  }
-
+  LL_RCC_HSI_SetCalibTrimming(64);
+  LL_RCC_SetHSIDiv(LL_RCC_HSI_DIV_1);
   /* Set AHB prescaler*/
-  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
+  LL_RCC_SetAHBPrescaler(LL_RCC_HCLK_DIV_1);
 
-  /* Sysclk activation on the main PLL */
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+  /* Sysclk activation on the HSI */
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
   {
   }
 
   /* Set APB1 prescaler*/
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
-
-  LL_Init1msTick(64000000);
-
+  LL_Init1msTick(48000000);
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-  LL_SetSystemCoreClock(64000000);
+  LL_SetSystemCoreClock(48000000);
 }
 
 /**
@@ -175,43 +204,15 @@ static void MX_GPIO_Init(void)
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
 
   /**/
-  LL_GPIO_ResetOutputPin(CS_GPIO_Port, CS_Pin);
+  LL_GPIO_ResetOutputPin(test_GPIO_Port, test_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(SK_GPIO_Port, SK_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(DI_GPIO_Port, DI_Pin);
-
-  /**/
-  GPIO_InitStruct.Pin = CS_Pin;
+  GPIO_InitStruct.Pin = test_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(CS_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = SK_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(SK_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = DI_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(DI_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = DO_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(DO_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(test_GPIO_Port, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
