@@ -8,9 +8,9 @@
 #ifndef INC_DELAY_H_
 #define INC_DELAY_H_
 
-#include "stm32g0xx_ll_utils.h"
+#include "stm32c0xx_ll_utils.h"
 
-#define SYSTEM_CLOCK 64000000		//HCLK
+#define SYSTEM_CLOCK 48000000		//HCLK
 #define MICRO_SECOND 1000000		//1s = 1000000us
 #define MILL_SECOND 1000			//1s = 1000ms
 #define MICRO_LOAD (SYSTEM_CLOCK/MICRO_SECOND)	// HCLK/MICRO_SECOND = 1usでカウントされる値

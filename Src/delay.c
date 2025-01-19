@@ -9,6 +9,7 @@
 void Delay(uint32_t nTime)
 {
 	__IO uint32_t tmp = SysTick->CTRL;
+	SysTick->VAL = 0;
 	((void)tmp);
 
 	while(nTime)
