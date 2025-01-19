@@ -6,9 +6,9 @@
  */
 #include "s93c46.h"
 
-#define ThreeWire
+//#define ThreeWire
 
-static uint8_t CheckPosition(uint16_t val);			//POSITION_VALの代わり
+static uint8_t CheckPosition(uint16_t val);
 static void SendBit(uint8_t bit);
 static void SendOpCode(uint8_t code);
 static void WriteAddress(uint8_t add);
@@ -39,6 +39,7 @@ void SetHandle(S93C46_Typedef* init)
 	Select = init->CS;
 	Clock = init->SK;
 	Output = init->DI;
+	Input = init->DO;
 
 	DIshift = CheckPosition(init->DI);
 	DOshift = CheckPosition(init->DO);
@@ -69,6 +70,7 @@ static inline void StartBit(void)					//CSをHiにした後、DIをHiにする�
 }
 static inline void EnableChip(void)
 {
+	Init1usTick();									//SysTickを1usカウントに切り替える
 	WRITE_REG(CS_Port->BSRR,Select);
 	Delay(1);										//wait tCSS
 }
@@ -76,6 +78,7 @@ static inline void DisableChip(void)
 {
 	WRITE_REG(CS_Port->BRR,Select);
 	Delay(1);										//wait tCDS
+	DeInit1usTick();								//SysTickを1msカウントに戻す
 }
 static void SendBit(uint8_t bit)
 {
@@ -104,14 +107,10 @@ static uint16_t ReadData(void)
 		WRITE_REG(SK_Port->BSRR,Clock);
 		Delay(SK_READ_TIME);
 
-		ret |= (DI_Port->IDR & Input) >> DIshift;
+		ret |= (DI_Port->IDR & Output) >> DIshift;
 		WRITE_REG(SK_Port->BRR,Clock);
 	}
 	return ret;
-}
-static void Verify(void)
-{
-	Delay(5000);
 }
 #else
 static uint16_t ReadData(void)
@@ -129,11 +128,6 @@ static uint16_t ReadData(void)
 	}
 	return ret;
 }
-static void Verify(void)
-{
-	EnableChip();
-	while(!(DO_Port->IDR & Input));			//Check Busy
-}
 #endif
 static void WriteAddress(uint8_t add)			//いずれもMSBから送信
 {
@@ -149,6 +143,16 @@ static void WriteData(uint16_t data)
 		SendBit((data >> i) & 0x0001);
 	}
 }
+static void Verify(void)
+{
+#ifdef ThreeWire
+	Delay(5000);
+#else
+	EnableChip();
+
+	while(!(DO_Port->IDR & Input));		//Check Busy
+#endif
+}
 void WriteRom(uint8_t address,uint8_t code,uint16_t data)
 {
 	EnableChip();
@@ -158,6 +162,18 @@ void WriteRom(uint8_t address,uint8_t code,uint16_t data)
 	DisableChip();
 	Verify();
 }
+#ifdef ThreeWire
+void ReadRom(uint8_t address,uint16_t *val)
+{
+	EnableChip();
+	StartBit();
+	WriteAddress(address | READ_CODE);
+	LL_GPIO_SetPinMode(DI_Port, Output, LL_GPIO_MODE_INPUT);
+	*val = ReadData();
+	DisableChip();
+	LL_GPIO_SetPinMode(DI_Port, Output, LL_GPIO_MODE_OUTPUT);
+}
+#else
 void ReadRom(uint8_t address,uint16_t *val)
 {
 	EnableChip();
@@ -166,9 +182,9 @@ void ReadRom(uint8_t address,uint16_t *val)
 	*val = ReadData();
 	DisableChip();
 }
+#endif
 void EnableWrite(void)
 {
-	Init1usTick();							//SysTickを1usカウントに切り替える
 	EnableChip();
 	//DummyClock();
 	StartBit();
@@ -181,5 +197,4 @@ void DisableWrite(void)
 	StartBit();
 	SendOpCode(DISABLE_CODE);
 	DisableChip();
-	DeInit1usTick();						//SysTickを1msカウントに戻す
 }
