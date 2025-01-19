@@ -1,7 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    stm32g0xx_it.c
+  * @file    stm32c0xx_it.c
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   * @attention
@@ -19,7 +19,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32g0xx_it.h"
+#include "stm32c0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -57,10 +57,11 @@
 /* External variables --------------------------------------------------------*/
 
 /* USER CODE BEGIN EV */
+
 /* USER CODE END EV */
 
 /******************************************************************************/
-/*           Cortex-M0+ Processor Interruption and Exception Handlers          */
+/*           Cortex Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
   * @brief This function handles Non maskable interrupt.
@@ -133,10 +134,10 @@ void SysTick_Handler(void)
 }
 
 /******************************************************************************/
-/* STM32G0xx Peripheral Interrupt Handlers                                    */
+/* STM32C0xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
 /* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32g0xx.s).                    */
+/* please refer to the startup file (startup_stm32c0xx.s).                    */
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
