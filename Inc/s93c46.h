@@ -8,7 +8,9 @@
 #ifndef INC_S93C46_H_
 #define INC_S93C46_H_
 
-#include "main.h"
+#include <stdint.h>
+#include "stm32c0xx.h"
+#include "stm32c0xx_ll_gpio.h"
 #include "delay.h"
 
 typedef enum{
@@ -30,6 +32,8 @@ typedef struct{
 #define ADDR_MASK 0x3F
 #define SK_TIME 1
 #define SK_READ_TIME 2
+#define DI_SHIFT 6
+#define DO_SHIFT 7
 
 #define READ_CODE 0x80
 #define WRITE_CODE 0x40
@@ -38,13 +42,6 @@ typedef struct{
 #define ER_ALL_CODE 0x20
 #define ENABLE_CODE 0x30
 #define DISABLE_CODE 0x00
-
-//typedef enum{
-//	CS = 1 << 4,
-//	SK = 1 << 5,
-//	DI = 1 << 6,
-//	DO = 1 << 7,
-//}GPIO_Pin;
 
 void SetHandle(S93C46_Typedef* init);
 void WriteRom(uint8_t address,uint8_t code,uint16_t data);
