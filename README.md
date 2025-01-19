@@ -3,9 +3,8 @@
 ## 概要
 セイコー製のEEPROM、S93C46ADP用のプログラムです。
 
-このROMはSPIと似て非なる形式(MicroWire)での制御になりますので、GPIOの操作で通信しています。
-
-(ROMから見て)データ入力(DI)と出力(DO)を1本にすることもできます。s93c46.cの"ThreeWire"の宣言で切り替えます。
+SPIに似たMicroWire形式での通信です。
+このプログラムでは単純にGPIOで通信を行っています。
 
 ## 説明
 GPIOの設定はgpio.cのGPIO_Initで行っています。
