@@ -1,22 +1,30 @@
 /*
  * gpio.c
  *
- *  Created on: Jan 7, 2025
+ *  Created on: Jan 12, 2025
  *      Author: wataoxp
  */
 
 #include "gpio.h"
 
-void GPIO_init(GPIO_TypeDef *GPIOx,uint32_t pin,uint32_t mode)
+GPIO_Code GPIO_Init(GPIO_TypeDef *GPIOx,GPIO_InitTypedef *InitStruct)
 {
-	LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-	LL_GPIO_ResetOutputPin(GPIOx, pin);
-	if(mode == LL_GPIO_MODE_OUTPUT)
+	if((InitStruct->PinPos == Pin13) || (InitStruct->PinPos == Pin14))
 	{
-		LL_GPIO_SetPinSpeed(GPIOx, pin, LL_GPIO_SPEED_FREQ_LOW);
-		LL_GPIO_SetOutputPin(GPIOx, pin);
+		if(GPIOx == GPIOA)
+		{
+			return init_Failed;
+		}
 	}
-	LL_GPIO_SetPinPull(GPIOx, pin, LL_GPIO_PULL_NO);
-	LL_GPIO_SetPinMode(GPIOx, pin, mode);
+	if(InitStruct->Mode == LL_GPIO_MODE_OUTPUT || InitStruct->Mode == LL_GPIO_MODE_ALTERNATE)
+	{
+		WRITE_REG(GPIOx->BRR,1 << InitStruct->PinPos);
+		GPIO_SetPinSpeed(GPIOx, InitStruct);
+		GPIO_SetOutputPinType(GPIOx, InitStruct);
+	}
+	GPIO_SetPinPull(GPIOx, InitStruct);
+	GPIO_SetPinMode(GPIOx, InitStruct);
+
+	return init_Success;
 }
 
