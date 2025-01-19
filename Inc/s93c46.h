@@ -9,8 +9,9 @@
 #define INC_S93C46_H_
 
 #include <stdint.h>
-#include "stm32c0xx.h"
-#include "stm32c0xx_ll_gpio.h"
+//#include "stm32c0xx.h"
+//#include "stm32c0xx_ll_gpio.h"
+#include "main.h"
 #include "delay.h"
 
 typedef enum{
