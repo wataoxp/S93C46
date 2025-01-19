@@ -9,9 +9,10 @@
 #define INC_GPIO_H_
 
 #include <stdint.h>
-#include "stm32c011xx.h"
-#include "stm32c0xx_ll_bus.h"
-#include "stm32c0xx_ll_gpio.h"
+#include "main.h"
+//#include "stm32c011xx.h"
+//#include "stm32c0xx_ll_bus.h"
+//#include "stm32c0xx_ll_gpio.h"
 
 typedef enum{
 	Pin0,
