@@ -125,7 +125,7 @@ int main(void)
 		Error_Handler();
 	}
 	InitObj.PinPos = Pin3;
-	InitObj.Pull = LL_GPIO_PULL_DOWN;
+	InitObj.Pull = LL_GPIO_PULL_NO;
 	InitObj.Mode = LL_GPIO_MODE_INPUT;
 	if(GPIO_Init(GPIOA, &InitObj))
 	{
